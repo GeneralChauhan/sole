@@ -23,7 +23,7 @@ export type StatsBarItem = {
 export type SlackSummarySection = {
   label: string;
   /** e.g. "14 people", "8 topics" — optional icon per item (person, document, open, awaited). */
-  primary: { value: string; label: string; icon?: "person" | "document" | "open" | "awaited" }[];
+  primary: { value: string; label: string; icon?: "person" | "document" | "open" | "awaited" | null }[];
 };
 
 export type OnboardingStepId = "welcome" | "overview" | "slack";
@@ -76,6 +76,7 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
         label: "You are collaborating with",
         primary: [
           { value: "14", label: "people", icon: "person" },
+          { value: "", label: "across", icon: null },
           { value: "8", label: "topics", icon: "document" },
         ],
       },
@@ -86,6 +87,7 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
           { value: "37", label: "awaited on others", icon: "awaited" },
         ],
       },
+      
     ],
     bottomDetail: "8 new this week, 7 have turned inactive & 4 are overdue",
   },

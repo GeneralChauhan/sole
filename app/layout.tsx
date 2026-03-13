@@ -6,6 +6,7 @@ const lora = Lora({
   variable: "--font-lora",
   subsets: ["latin"],
   display: "swap",
+  weight: "400",
 });
 
 const inter = Inter({
