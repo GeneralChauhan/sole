@@ -1,0 +1,64 @@
+/**
+ * Design tokens aligned to Figma frames (Frame_1, Frame_2, Frame_3).
+ * Frame_1: Lora (headings), Inter (body), Sol logo, Pattern, #F8F8F8 background.
+ */
+:root {
+  /* Background — light off-white with subtle feel */
+  --onboarding-bg: #f8f8f8;
+
+  /* Card */
+  --onboarding-card-bg: #ffffff;
+  --onboarding-card-radius: 16px;
+  --onboarding-card-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.06), 0 8px 16px -8px rgba(0, 0, 0, 0.04);
+  --onboarding-card-width: 600px;
+  --onboarding-card-padding-x: 40px;
+  --onboarding-card-padding-y: 32px;
+
+  /* Icon (orange brain) */
+  --onboarding-icon-size: 40px;
+  --onboarding-icon-bg: #fff7ed;
+  --onboarding-icon-color: #ea580c;
+  --onboarding-icon-radius: 12px;
+
+  /* Typography */
+  --onboarding-title-size: 32px;
+  --onboarding-title-weight: 600;
+  --onboarding-title-color: #333333;
+  --onboarding-title-line: 1.25;
+
+  --onboarding-subtitle-size: 15px;
+  --onboarding-subtitle-color: #666666;
+  --onboarding-subtitle-line: 1.5;
+
+  --onboarding-metric-value-size: 20px;
+  --onboarding-metric-value-weight: 600;
+  --onboarding-metric-label-size: 13px;
+  --onboarding-metric-label-color: #71717a;
+
+  --onboarding-footnote-size: 13px;
+  --onboarding-footnote-color: #a1a1aa;
+
+  /* Metric icon box */
+  --onboarding-metric-icon-bg: #f4f4f5;
+  --onboarding-metric-icon-size: 40px;
+  --onboarding-metric-icon-radius: 8px;
+
+  /* CTA button (outside card, bottom center) — dark with subtle emboss */
+  --onboarding-cta-bg: #1a1a1a;
+  --onboarding-cta-color: #ffffff;
+  --onboarding-cta-height: 48px;
+  --onboarding-cta-padding-x: 24px;
+  --onboarding-cta-radius: 12px;
+  --onboarding-cta-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --onboarding-cta-font-size: 14px;
+  --onboarding-cta-font-weight: 500;
+  --onboarding-cta-highlight: rgba(255, 255, 255, 0.08);
+
+  /* Spacing (8px grid) */
+  --onboarding-space-icon-bottom: 24px;
+  --onboarding-space-title-bottom: 12px;
+  --onboarding-space-subtitle-bottom: 24px;
+  --onboarding-space-metrics-top: 32px;
+  --onboarding-space-footnote-top: 24px;
+  --onboarding-space-cta-top: 32px;
+}

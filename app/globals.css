@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./onboarding/design-tokens.css";
 
 :root {
   --background: #ffffff;
@@ -8,8 +9,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Next Fonts: Lora and Inter are loaded in layout.tsx and expose --font-lora, --font-inter */
+  --font-serif: var(--font-lora), Georgia, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,5 +24,183 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ----- Onboarding: step content enter ----- */
+@keyframes onboarding-step-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes onboarding-icon-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes onboarding-metric-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes onboarding-footnote-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.onboarding-card__top {
+  padding: 40px;
+  border-radius: 8px;
+  background: transparent;
+  box-shadow: 3px 9px 54px 0 rgba(170, 170, 170, 0.25);
+  position: relative;
+  z-index: 1;
+}
+
+.onboarding-card__bottom {
+  padding: 24px 20px;
+}
+.onboarding-step-content {
+  animation: onboarding-step-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.onboarding-icon {
+  animation: onboarding-icon-enter 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.05s forwards;
+}
+
+.onboarding-metric-item {
+  opacity: 0;
+  animation: onboarding-metric-enter 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.onboarding-footnote {
+  opacity: 0;
+  animation: onboarding-footnote-enter 0.4s ease-out 0.35s forwards;
+}
+
+
+.onboarding-cta {
+  opacity: 0;
+  animation: onboarding-step-enter 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
+}
+
+/* ----- Onboarding: high-end animation presets ----- */
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUpFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.onboarding-animate-entry {
+  opacity: 0;
+  animation: slideUpFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.onboarding-loading-text {
+  font-size: 14px;
+  color: #888;
+  animation: pulse 1.5s ease-in-out infinite;
+  text-align: center;
+}
+
+/* Card smooth resize (Framer Motion layout animates height; this backs up other props) */
+.onboarding-card {
+  transition:
+    box-shadow 0.35s ease,
+    transform 0.35s ease,
+    height 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Pattern in top-right corner — pseudo-element so it stays visible and isn’t covered */
+.onboarding-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 0;
+  width: 10rem;
+  height: 8rem;
+  background-image: url("/Pattern.png");
+  background-size: contain;
+  background-position: right top;
+  background-repeat: no-repeat;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-step-content,
+  .onboarding-icon,
+  .onboarding-metric-item,
+  .onboarding-footnote,
+  .onboarding-cta,
+  .onboarding-animate-entry {
+    animation-duration: 0.01ms;
+  }
+  .onboarding-button,
+  .onboarding-card {
+    transition-duration: 0.01ms;
+  }
+  .onboarding-loading-text {
+    animation: none;
+  }
 }
