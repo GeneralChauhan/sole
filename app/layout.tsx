@@ -25,17 +25,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-
   return (
     <html lang="en">
-      <body
-        className={`${lora.variable} ${inter.variable} font-sans antialiased`}
-        style={{
-          ["--base-path" as string]: basePath ? `"${basePath}"` : '""',
-          ["--pattern-url" as string]: basePath ? `"${basePath}/Pattern.png"` : '"/Pattern.png"',
-        }}
-      >
+      <body className={`${lora.variable} ${inter.variable} font-sans antialiased`}>
         {children}
       </body>
     </html>

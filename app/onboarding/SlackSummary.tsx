@@ -6,12 +6,11 @@ import type { SlackSummarySection } from "./data";
 const STAGGER_MS = 120;
 const DELAY_CHILDREN_MS = 80;
 const iconSize = 20;
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 function SparkIcon() {
   return (
     <Image
-      src={`${basePath}/star.svg`}
+      src="/star.svg"
       alt=""
       width={iconSize}
       height={iconSize}
@@ -25,7 +24,7 @@ function SparkIcon() {
 function PersonIcon() {
   return (
     <Image
-      src={`${basePath}/people.svg`}
+      src="/people.svg"
       alt=""
       width={iconSize}
       height={iconSize}
@@ -39,7 +38,7 @@ function PersonIcon() {
 function DocumentIcon() {
   return (
     <Image
-      src={`${basePath}/file.svg`}
+      src="/file.svg"
       alt=""
       width={iconSize}
       height={iconSize}
@@ -54,7 +53,7 @@ function DocumentIcon() {
 function OpenIcon() {
   return (
     <Image
-      src={`${basePath}/open.svg`}
+      src="/open.svg"
       alt=""
       width={iconSize}
       height={iconSize}
@@ -68,7 +67,7 @@ function OpenIcon() {
 function AwaitedIcon() {
   return (
     <Image
-      src={`${basePath}/awaited.svg`}
+      src="/awaited.svg"
       alt=""
       width={iconSize}
       height={iconSize}

@@ -6,12 +6,11 @@ import type { StatsBarItem } from "./data";
 const STAGGER_MS = 80;
 const DELAY_CHILDREN_MS = 100;
 const iconSize = 20;
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 function PlusIcon() {
   return (
     <Image
-      src={`${basePath}/star.svg`}
+      src="/star.svg"
       alt=""
       width={iconSize}
       height={iconSize}
@@ -24,7 +23,7 @@ function PlusIcon() {
 function MessagesIcon() {
   return (
     <Image
-      src={`${basePath}/msg.svg`}
+      src="/msg.svg"
       alt=""
       width={iconSize}
       height={iconSize}
@@ -37,7 +36,7 @@ function MessagesIcon() {
 function ThreadsIcon() {
   return (
     <Image
-      src={`${basePath}/conversation.svg`}
+      src="/conversation.svg"
       alt=""
       width={iconSize}
       height={iconSize}
@@ -50,7 +49,7 @@ function ThreadsIcon() {
 function HashtagIcon() {
   return (
     <Image
-      src={`${basePath}/hash.svg`}
+      src="/hash.svg"
       alt=""
       width={iconSize}
       height={iconSize}
