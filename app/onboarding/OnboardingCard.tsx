@@ -112,7 +112,7 @@ export function OnboardingCard({
       <span>{displayStep.ctaLabel}</span>
       <span className="relative flex h-5 w-5 items-center justify-center" aria-hidden>
         <Image
-          src="/CTA_Icon.svg"
+          src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/CTA_Icon.svg`}
           alt=""
           width={17}
           height={18}

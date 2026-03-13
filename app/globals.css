@@ -108,7 +108,7 @@ body {
   z-index: 0;
   width: 300px;
   height: 150px;
-  background-image: url("/Pattern.png");
+  background-image: url(var(--pattern-url));
   background-size: contain;
   background-position: right top;
   background-repeat: no-repeat;

@@ -14,7 +14,7 @@ export function SolLogo() {
       aria-hidden
     >
       <Image
-        src="/sol-light@2x.png"
+        src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/sol-light@2x.png`}
         alt=""
         width={150}
         height={150}
