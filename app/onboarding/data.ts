@@ -73,6 +73,13 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
     ctaLabel: "Proceed",
     slackSummary: [
       {
+        label: "Open loops found",
+        primary: [
+          { value: "17", label: "open on you", icon: "open" },
+          { value: "37", label: "awaited on others", icon: "awaited" },
+        ],
+      },
+      {
         label: "You are collaborating with",
         primary: [
           { value: "14", label: "people", icon: "person" },
@@ -80,13 +87,7 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
           { value: "8", label: "topics", icon: "document" },
         ],
       },
-      {
-        label: "Open loops found",
-        primary: [
-          { value: "17", label: "open on you", icon: "open" },
-          { value: "37", label: "awaited on others", icon: "awaited" },
-        ],
-      },
+      
       
     ],
     bottomDetail: "8 new this week, 7 have turned inactive & 4 are overdue",

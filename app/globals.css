@@ -119,7 +119,7 @@ body {
 
 @keyframes onboarding-card-bottom-slide-down {
   from {
-    transform: translateY(-100%);
+    transform: translateY(-110%);
   }
   to {
     transform: translateY(-5%);
@@ -133,8 +133,8 @@ body {
   position: relative;
   z-index: 0;
   background: #FFF;
-  transform: translateY(-100%);
-  animation: onboarding-card-bottom-slide-down 0.65s cubic-bezier(0.16, 1, 0.3, 1) 1.6s forwards;
+  transform: translateY(-66%);
+  animation: onboarding-card-bottom-slide-down 30.65s cubic-bezier(0.16, 1, 0.3, 1) 1.6s forwards;
   border-radius: 0 0 8px 8px;
   border: 1px solid #EAEAEA;
 }
@@ -290,6 +290,64 @@ body {
   animation: slideUpFade 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Slack unified card: smoother row + footer entrance */
+.onboarding-slack-row-enter {
+  opacity: 0;
+  animation: slideUpFade 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.onboarding-slack-footer-enter {
+  opacity: 0;
+  animation: slideUpFade 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/*
+ * Slack step: whole summary card (Collaborating + Open Loops + bottom detail) moves as one
+ * block, sliding down from under .onboarding-card__top — same motion as the bottom shell.
+ * Footer copy still fades separately (onboarding-slack-bottom-detail-text-fade).
+ */
+@keyframes onboarding-slack-card-slide {
+  from {
+    transform: translateY(-152px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.onboarding-slack-card-slide {
+  animation: onboarding-slack-card-slide 1.12s cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: both;
+}
+
+@keyframes onboarding-slack-bottom-detail-text-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.onboarding-slack-bottom-detail-text-fade {
+  opacity: 0;
+  animation: onboarding-slack-bottom-detail-text-fade 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: both;
+}
+
+.onboarding-slack-scroll {
+  scroll-behavior: smooth;
+  scroll-padding-block: 12px;
+  scroll-padding-inline: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-slack-scroll {
+    scroll-behavior: auto;
+  }
+}
+
 /* Stagger delays for card children (delayChildren 0.5s + stagger 0.5s) */
 .onboarding-card-stagger-0 { animation-delay: 0.5s; }
 .onboarding-card-stagger-1 { animation-delay: 1s; }
@@ -364,6 +422,10 @@ body {
   .onboarding-stats-bar-item-left,
   .onboarding-stats-bar-item-right,
   .onboarding-slack-section-enter,
+  .onboarding-slack-row-enter,
+  .onboarding-slack-footer-enter,
+  .onboarding-slack-card-slide,
+  .onboarding-slack-bottom-detail-text-fade,
   .onboarding-card-logo-enter,
   .onboarding-card-title-enter,
   .onboarding-card-subtitle-enter,
