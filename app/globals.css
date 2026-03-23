@@ -89,7 +89,8 @@ body {
   border-radius: 8px;
   border: 1px solid #EAEAEA;
   background: var(--onboarding-card-bg);
-  animation: box-shadow-enter 0.65s cubic-bezier(0.16, 1, 0.3, 1) 1.6s forwards;
+  /* `both`: apply keyframe `from` during delay so shadow doesn’t jump in before the animation runs */
+  animation: box-shadow-enter 0.65s cubic-bezier(0.16, 1, 0.3, 1) 1.6s both;
   box-shadow: 3px 9px 54px 0 rgba(170, 170, 170, 0.25);
   position: relative;
   z-index: 1;
@@ -132,11 +133,14 @@ body {
   padding: 32px 20px 24px 20px;
   position: relative;
   z-index: 0;
+  overflow: hidden;
   background: #FFF;
-  transform: translateY(-66%);
-  animation: onboarding-card-bottom-slide-down 30.65s cubic-bezier(0.16, 1, 0.3, 1) 1.6s forwards;
+  /* Must match keyframes `from` — weaker values (e.g. -66%) leave a sliver before the delay ends */
+  transform: translateY(-110%);
+  animation: onboarding-card-bottom-slide-down 0.35s cubic-bezier(0.16, 1, 0.3, 1) 1.6s both;
   border-radius: 0 0 8px 8px;
   border: 1px solid #EAEAEA;
+
 }
 
 /* Slack step: no card background so sections sit on page background */
@@ -438,6 +442,7 @@ body {
   }
   .onboarding-card__top {
     transition-duration: 0.01ms;
+    animation-duration: 0.01ms;
   }
   .onboarding-button,
   .onboarding-card {

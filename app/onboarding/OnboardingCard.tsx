@@ -3,8 +3,13 @@
 import { useState, useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { OnboardingStep } from "./data";
-import { ONBOARDING_STEPS } from "./data";
+import {
+  ONBOARDING_STEPS,
+  getInitialStepIndexFromLocation,
+  parseOnboardingStepIndexFromParam,
+} from "./data";
 import { SolLogo } from "./SolLogo";
 import { StatsBar } from "./StatsBar";
 import { SlackSummary } from "./SlackSummary";
@@ -28,7 +33,13 @@ export function OnboardingCard({
   ctaContainerRef,
   ctaContainerReady,
 }: Props) {
-  const [stepIndex, setStepIndex] = useState(0);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
+
+  const [stepIndex, setStepIndex] = useState(() => getInitialStepIndexFromLocation());
   const [exitingStepId, setExitingStepId] = useState<string | null>(null);
   const exitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const topSectionRef = useRef<HTMLElement | null>(null);
@@ -45,6 +56,7 @@ export function OnboardingCard({
       onComplete?.();
       return;
     }
+    const nextIndex = stepIndex + 1;
     setExitingStepId(step.id);
     exitTimeoutRef.current = setTimeout(() => {
       const el = topSectionRef.current;
@@ -52,17 +64,30 @@ export function OnboardingCard({
       if (el && fromHeight !== undefined) {
         el.style.height = `${fromHeight}px`;
       }
-      setStepIndex((i) => i + 1);
+      setStepIndex(nextIndex);
       setExitingStepId(null);
       exitTimeoutRef.current = null;
+
+      const params = new URLSearchParams(searchParamsRef.current.toString());
+      params.set("step", String(nextIndex + 1));
+      const q = params.toString();
+      router.replace(q ? `${pathname}?${q}` : pathname, { scroll: false });
     }, STEP_FADE_OUT_MS);
-  }, [isLastStep, step.id, onComplete]);
+  }, [isLastStep, step.id, onComplete, stepIndex, pathname, router]);
 
   useEffect(() => {
     return () => {
       if (exitTimeoutRef.current) clearTimeout(exitTimeoutRef.current);
     };
   }, []);
+
+  const stepParam = searchParams.get("step");
+  useLayoutEffect(() => {
+    const idx = parseOnboardingStepIndexFromParam(stepParam);
+    if (idx !== null) {
+      setStepIndex(idx);
+    }
+  }, [stepParam]);
 
   useLayoutEffect(() => {
     const el = topSectionRef.current;
@@ -158,7 +183,10 @@ export function OnboardingCard({
                     }}
                   >
                     <h1
-                      className="font-serif tracking-tight mx-auto w-[360px] text-[var(--onboarding-title-color)]"
+                      className={cn(
+                        "font-serif tracking-tight mx-auto w-[360px] text-[var(--onboarding-title-color)]",
+                        visible && "onboarding-card-title-enter"
+                      )}
                       style={{
                         fontSize: "var(--onboarding-title-size)",
                         lineHeight: "var(--onboarding-title-line)",
@@ -170,7 +198,10 @@ export function OnboardingCard({
 
                   <div className="relative mb-0 w-full overflow-hidden">
                     <p
-                      className="mx-auto text-[var(--onboarding-subtitle-color)]"
+                      className={cn(
+                        "mx-auto text-[var(--onboarding-subtitle-color)]",
+                        visible && "onboarding-card-subtitle-enter"
+                      )}
                       style={{
                         fontSize: "var(--onboarding-subtitle-size)",
                         lineHeight: "var(--onboarding-subtitle-line)",
@@ -212,7 +243,7 @@ export function OnboardingCard({
         {showBottomShell && (
           <section
             className={cn(
-              "onboarding-card__bottom mt-[-8px] w-full pt-[8px] min-h-[54.01px]",
+              "onboarding-card__bottom mt-[-8px] w-full pt-[8px]",
               stepIndex === 2 && "onboarding-card__bottom--transparent"
             )}
           >

@@ -93,3 +93,25 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
     bottomDetail: "8 new this week, 7 have turned inactive & 4 are overdue",
   },
 ];
+
+/** 1-based step in the URL (?step=1 … ?step=N). Returns 0-based index, or null if absent/invalid. */
+export function parseOnboardingStepIndexFromParam(
+  step: string | string[] | undefined | null
+): number | null {
+  if (step == null) return null;
+  const s = Array.isArray(step) ? step[0] : step;
+  if (s === "") return null;
+  const n = parseInt(String(s), 10);
+  if (Number.isNaN(n)) return null;
+  const oneBased = Math.max(1, Math.min(ONBOARDING_STEPS.length, n));
+  return oneBased - 1;
+}
+
+/**
+ * Initial 0-based step from `window.location` (client-only).
+ * Use in `useState(() => …)` so the first paint matches `?step` and entry animations run once.
+ */
+export function getInitialStepIndexFromLocation(): number {
+  if (typeof window === "undefined") return 0;
+  return parseOnboardingStepIndexFromParam(new URLSearchParams(window.location.search).get("step")) ?? 0;
+}
