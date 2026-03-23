@@ -130,14 +130,15 @@ export function OnboardingCard({
           ref={topSectionRef}
           className="onboarding-card__top flex w-full flex-col items-center "
         >
+          {/* Logo stays outside the exiting step wrapper so it never fades on transition */}
+          <div className="onboarding-card-logo-enter">
+            <SolLogo />
+          </div>
+
           <div
             key={displayStep.id}
             className={`flex w-full flex-col items-center ${isExiting ? "onboarding-step-exit" : ""}`}
           >
-            <div className="onboarding-card-logo-enter">
-              <SolLogo />
-            </div>
-
             <div
               className="relative w-full overflow-hidden"
               style={{
