@@ -30,11 +30,11 @@ body {
 }
 
 
-/* ----- Onboarding: step content enter ----- */
-@keyframes onboarding-step-enter {
+/* ----- Onboarding: unified choreo (fade + slide up, stagger via --stagger) ----- */
+@keyframes fadeSlideUp {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -42,15 +42,24 @@ body {
   }
 }
 
-@keyframes onboarding-icon-enter {
+@keyframes fadeOut {
   from {
-    opacity: 0;
-    transform: scale(0.92);
+    opacity: 1;
   }
   to {
-    opacity: 1;
-    transform: scale(1);
+    opacity: 0;
   }
+}
+
+.animate-enter {
+  opacity: 0;
+  animation: fadeSlideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation-delay: var(--stagger, 0ms);
+}
+
+.animate-exit,
+.onboarding-step-exit {
+  animation: fadeOut 0.2s ease-out forwards;
 }
 
 @keyframes onboarding-metric-enter {
@@ -61,15 +70,6 @@ body {
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes onboarding-footnote-enter {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
   }
 }
 
@@ -90,7 +90,7 @@ body {
   border: 1px solid #EAEAEA;
   background: var(--onboarding-card-bg);
   /* `both`: apply keyframe `from` during delay so shadow doesn’t jump in before the animation runs */
-  animation: box-shadow-enter 0.65s cubic-bezier(0.16, 1, 0.3, 1) 1.6s both;
+  animation: box-shadow-enter 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0s both;
   box-shadow: 3px 9px 54px 0 rgba(170, 170, 170, 0.25);
   position: relative;
   z-index: 1;
@@ -137,7 +137,7 @@ body {
   background: #FFF;
   /* Must match keyframes `from` — weaker values (e.g. -66%) leave a sliver before the delay ends */
   transform: translateY(-110%);
-  animation: onboarding-card-bottom-slide-down 0.35s cubic-bezier(0.16, 1, 0.3, 1) 1.6s both;
+  animation: onboarding-card-bottom-slide-down 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
   border-radius: 0 0 8px 8px;
   border: 1px solid #EAEAEA;
 
@@ -152,62 +152,19 @@ body {
 
 }
 
-.onboarding-icon {
-  animation: onboarding-icon-enter 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.05s forwards;
-}
-
 .onboarding-metric-item {
   opacity: 0;
   animation: onboarding-metric-enter 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-.onboarding-footnote {
-  opacity: 0;
-  animation: onboarding-footnote-enter 0.4s ease-out 0.35s forwards;
-}
 
-
-
-/* ----- Onboarding: high-end animation presets ----- */
-@keyframes slideUpFade {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideUpFadeOut {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-}
-
+/* ----- Onboarding: misc presets ----- */
 @keyframes pulse {
   0%,
   100% {
     opacity: 0.4;
   }
   50% {
-    opacity: 1;
-  }
-}
-
-@keyframes popIn {
-  0% {
-    transform: scale(0);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
     opacity: 1;
   }
 }
@@ -228,26 +185,6 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes onboarding-step-exit {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-
-@keyframes onboarding-cta-enter {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes onboarding-slide-from-left {
-  from { opacity: 0; transform: translateX(-20px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes onboarding-slide-from-right {
-  from { opacity: 0; transform: translateX(20px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
 .onboarding-banner-enter {
   animation: onboarding-banner-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -266,77 +203,8 @@ body {
   animation: onboarding-banner-text-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.35s forwards;
 }
 
-.onboarding-step-exit {
-  animation: onboarding-step-exit 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.onboarding-cta-enter {
-  opacity: 0;
-  animation: onboarding-cta-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) 1.5s forwards;
-}
-
 .onboarding-cta-tap:active {
   transform: scale(0.98);
-}
-
-.onboarding-stats-bar-item-left {
-  opacity: 0;
-  animation: onboarding-slide-from-left 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.onboarding-stats-bar-item-right {
-  opacity: 0;
-  animation: onboarding-slide-from-right 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.onboarding-slack-section-enter {
-  opacity: 0;
-  animation: slideUpFade 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* Slack unified card: smoother row + footer entrance */
-.onboarding-slack-row-enter {
-  opacity: 0;
-  animation: slideUpFade 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.onboarding-slack-footer-enter {
-  opacity: 0;
-  animation: slideUpFade 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-/*
- * Slack step: whole summary card (Collaborating + Open Loops + bottom detail) moves as one
- * block, sliding down from under .onboarding-card__top — same motion as the bottom shell.
- * Footer copy still fades separately (onboarding-slack-bottom-detail-text-fade).
- */
-@keyframes onboarding-slack-card-slide {
-  from {
-    transform: translateY(-152px);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-.onboarding-slack-card-slide {
-  animation: onboarding-slack-card-slide 1.12s cubic-bezier(0.22, 1, 0.36, 1);
-  animation-fill-mode: both;
-}
-
-@keyframes onboarding-slack-bottom-detail-text-fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.onboarding-slack-bottom-detail-text-fade {
-  opacity: 0;
-  animation: onboarding-slack-bottom-detail-text-fade 0.38s cubic-bezier(0.22, 1, 0.36, 1);
-  animation-fill-mode: both;
 }
 
 .onboarding-slack-scroll {
@@ -350,34 +218,6 @@ body {
   .onboarding-slack-scroll {
     scroll-behavior: auto;
   }
-}
-
-/* Stagger delays for card children (delayChildren 0.5s + stagger 0.5s) */
-.onboarding-card-stagger-0 { animation-delay: 0.5s; }
-.onboarding-card-stagger-1 { animation-delay: 1s; }
-.onboarding-card-stagger-2 { animation-delay: 1.5s; }
-.onboarding-card-stagger-3 { animation-delay: 2s; }
-.onboarding-card-stagger-4 { animation-delay: 2.5s; }
-.onboarding-card-stagger-5 { animation-delay: 3s; }
-
-.onboarding-card-logo-enter {
-  opacity: 0;
-  animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s forwards;
-}
-
-.onboarding-card-title-enter {
-  opacity: 0;
-  animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1s forwards;
-}
-
-.onboarding-card-subtitle-enter {
-  opacity: 0;
-  animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) 1.5s forwards;
-}
-
-.onboarding-animate-entry {
-  opacity: 0;
-  animation: slideUpFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .onboarding-loading-text {
@@ -412,27 +252,15 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .onboarding-icon,
+  .animate-enter,
+  .animate-exit,
+  .onboarding-step-exit,
   .onboarding-metric-item,
-  .onboarding-footnote,
   .onboarding-cta,
-  .onboarding-animate-entry,
   .onboarding-banner-enter,
   .onboarding-banner-exit,
   .onboarding-banner-text-1,
   .onboarding-banner-text-2,
-  .onboarding-step-exit,
-  .onboarding-cta-enter,
-  .onboarding-stats-bar-item-left,
-  .onboarding-stats-bar-item-right,
-  .onboarding-slack-section-enter,
-  .onboarding-slack-row-enter,
-  .onboarding-slack-footer-enter,
-  .onboarding-slack-card-slide,
-  .onboarding-slack-bottom-detail-text-fade,
-  .onboarding-card-logo-enter,
-  .onboarding-card-title-enter,
-  .onboarding-card-subtitle-enter,
   .onboarding-card__bottom {
     animation-duration: 0.01ms;
   }

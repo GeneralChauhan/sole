@@ -1,20 +1,22 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import type { SlackSummarySection } from "./data";
+import { staggerMs } from "./choreography";
 
-/** Matches StatsBar `duration-500` fade in OnboardingCard. */
-const STATS_FADE_MS = 500;
-/** Text fade duration — must match `.onboarding-slack-bottom-detail-text-fade` in globals.css. */
-const BOTTOM_TEXT_FADE_MS = 380;
-/** Slide starts after stats fade + text fade (StatsBar → copy, then strip moves). */
-const BOTTOM_SLIDE_DELAY_MS = STATS_FADE_MS + BOTTOM_TEXT_FADE_MS + 48;
-/** Whole-card slide duration — must match `.onboarding-slack-card-slide` in globals.css. */
-const BOTTOM_SLIDE_DURATION_MS = 1120;
-/** Scroll Open Loops row into view after the slide finishes. */
-const SCROLL_AFTER_BOTTOM_REVEAL_MS =
-  BOTTOM_SLIDE_DELAY_MS + BOTTOM_SLIDE_DURATION_MS + 200;
+/** Must match `.animate-enter` fadeSlideUp duration in globals.css. */
+const ENTER_ANIM_MS = 600;
+
+function scrollDelayAfterStagger(
+  rowDelaysMs: number[],
+  footerDelayMs: number | undefined,
+  hasBottomDetail: boolean
+): number {
+  const footer = hasBottomDetail ? (footerDelayMs ?? 0) : 0;
+  const maxRow = rowDelaysMs.length ? Math.max(...rowDelaysMs) : 0;
+  return Math.max(maxRow, footer) + ENTER_ANIM_MS + 200;
+}
 
 const iconSize = 20;
 
@@ -137,6 +139,10 @@ export type SlackSummaryProps = {
   sections: SlackSummarySection[];
   bottomDetail?: string;
   isActive?: boolean;
+  /** Stagger for each summary row (fade-slide-up). */
+  rowDelaysMs?: number[];
+  /** Stagger for bottom detail line. */
+  footerDelayMs?: number;
 };
 
 function smoothScrollToTarget(scrollEl: HTMLElement, targetEl: HTMLElement) {
@@ -158,10 +164,17 @@ export function SlackSummary({
   sections,
   bottomDetail,
   isActive = true,
+  rowDelaysMs = [300, 400],
+  footerDelayMs = 500,
 }: SlackSummaryProps) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const openLoopsRowRef = useRef<HTMLDivElement | null>(null);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  const scrollAfterMs = useMemo(
+    () => scrollDelayAfterStagger(rowDelaysMs, footerDelayMs, !!bottomDetail),
+    [footerDelayMs, bottomDetail, ...rowDelaysMs]
+  );
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -183,10 +196,10 @@ export function SlackSummary({
       const target = openLoopsRowRef.current;
       if (!scrollEl || !target) return;
       smoothScrollToTarget(scrollEl, target);
-    }, SCROLL_AFTER_BOTTOM_REVEAL_MS);
+    }, scrollAfterMs);
 
     return () => window.clearTimeout(id);
-  }, [isActive, sections.length, prefersReducedMotion]);
+  }, [isActive, sections.length, prefersReducedMotion, scrollAfterMs]);
 
   if (sections.length === 0) return null;
 
@@ -202,16 +215,8 @@ export function SlackSummary({
     marginTop: isActive ? "20px" : "-12px",
   };
 
-  const bottomDetailTextStyle: CSSProperties | undefined =
-    bottomDetail && isActive && !prefersReducedMotion
-      ? { animationDelay: `${STATS_FADE_MS}ms` }
-      : undefined;
-
-  /** One transform on the whole card: rows + bottom detail slide together under the top card. */
-  const slackCardSlideStyle: CSSProperties | undefined =
-    bottomDetail && isActive && !prefersReducedMotion
-      ? { animationDelay: `${BOTTOM_SLIDE_DELAY_MS}ms` }
-      : undefined;
+  const row0Delay = rowDelaysMs[0] ?? 0;
+  const row1Delay = rowDelaysMs[1] ?? row0Delay;
 
   return (
     <div className="w-full">
@@ -221,21 +226,31 @@ export function SlackSummary({
         style={scrollStyle}
       >
         <div
-          className={cn(
-            slackCard,
-            "relative z-0 flex flex-col overflow-hidden",
-            bottomDetail && isActive && !prefersReducedMotion && "onboarding-slack-card-slide"
-          )}
-          style={{ ...cardShellStyle, ...slackCardSlideStyle }}
+          className={cn(slackCard, "relative z-0 flex flex-col overflow-hidden")}
+          style={cardShellStyle}
         >
           <div className="flex flex-col gap-2">
-            <div className="border border-zinc-200/80 px-5 py-4 bg-white rounded-[8px]">
+            <div
+              ref={openLoopsRowRef}
+              className={cn(
+                "border border-zinc-200/80 px-5 py-4 bg-white rounded-[8px]",
+                isActive && !prefersReducedMotion && "animate-enter"
+              )}
+              style={
+                isActive && !prefersReducedMotion ? staggerMs(row0Delay) : undefined
+              }
+            >
               <RowContent section={first} />
             </div>
             {openLoopsSection ? (
               <div
-                ref={openLoopsRowRef}
-                className="border border-zinc-200/80 px-5 py-4 bg-white rounded-[8px]"
+                className={cn(
+                  "border border-zinc-200/80 px-5 py-4 bg-white rounded-[8px]",
+                  isActive && !prefersReducedMotion && "animate-enter"
+                )}
+                style={
+                  isActive && !prefersReducedMotion ? staggerMs(row1Delay) : undefined
+                }
               >
                 <RowContent section={openLoopsSection} />
               </div>
@@ -248,10 +263,12 @@ export function SlackSummary({
               style={{ letterSpacing: "-0.13px" }}
             >
               <span
-                className={cn(
-                  isActive && !prefersReducedMotion && "onboarding-slack-bottom-detail-text-fade"
-                )}
-                style={bottomDetailTextStyle}
+                className={cn(isActive && !prefersReducedMotion && "animate-enter")}
+                style={
+                  isActive && !prefersReducedMotion
+                    ? staggerMs(footerDelayMs)
+                    : undefined
+                }
               >
                 {bottomDetail}
               </span>

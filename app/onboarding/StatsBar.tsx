@@ -1,10 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import type { CSSProperties } from "react";
 import type { StatsBarItem } from "./data";
 
-const STAGGER_MS = 80;
-const DELAY_CHILDREN_MS = 100;
 const iconSize = 20;
 
 function PlusIcon() {
@@ -74,9 +73,21 @@ function StatsBarIcon({ item }: { item: StatsBarItem }) {
   }
 }
 
-export function StatsBar({ items }: { items: StatsBarItem[] }) {
+export function StatsBar({
+  items,
+  metadataBaseMs = 0,
+  metadataStaggerMs = 80,
+}: {
+  items: StatsBarItem[];
+  /** First chip delay (ms); from onboarding choreography. */
+  metadataBaseMs?: number;
+  metadataStaggerMs?: number;
+}) {
   const rightItems = items.slice(1);
   const leftItems = items.slice(0, 1);
+
+  const delayForIndex = (i: number): CSSProperties =>
+    ({ "--stagger": `${metadataBaseMs + i * metadataStaggerMs}ms` }) as CSSProperties;
 
   return (
     <div
@@ -89,11 +100,9 @@ export function StatsBar({ items }: { items: StatsBarItem[] }) {
           {leftItems.map((item, i) => (
             <div
               key={item.icon + item.label + i}
-              className="onboarding-stats-bar-item onboarding-stats-bar-item-left flex flex-row items-center gap-2"
+              className="onboarding-stats-bar-item animate-enter flex flex-row items-center gap-2"
               role="listitem"
-              style={{
-                animationDelay: `${DELAY_CHILDREN_MS + i * STAGGER_MS}ms`,
-              }}
+              style={delayForIndex(i)}
             >
               <span
                 className={
@@ -126,11 +135,9 @@ export function StatsBar({ items }: { items: StatsBarItem[] }) {
           {rightItems.map((item, i) => (
             <div
               key={item.icon + item.label + i}
-              className="onboarding-stats-bar-item onboarding-stats-bar-item-right flex flex-row items-center gap-2"
+              className="onboarding-stats-bar-item animate-enter flex flex-row items-center gap-2"
               role="listitem"
-              style={{
-                animationDelay: `${DELAY_CHILDREN_MS + (leftItems.length + i) * STAGGER_MS}ms`,
-              }}
+              style={delayForIndex(leftItems.length + i)}
             >
               <span
                 className={

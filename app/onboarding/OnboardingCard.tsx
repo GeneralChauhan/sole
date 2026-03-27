@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -10,11 +10,13 @@ import {
   getInitialStepIndexFromLocation,
   parseOnboardingStepIndexFromParam,
 } from "./data";
+import { getChoreography, staggerMs } from "./choreography";
 import { SolLogo } from "./SolLogo";
 import { StatsBar } from "./StatsBar";
 import { SlackSummary } from "./SlackSummary";
 
-const STEP_FADE_OUT_MS = 500;
+/** Match `.animate-exit` / `.onboarding-step-exit` — `fadeOut` 0.2s + small buffer. */
+const STEP_FADE_OUT_MS = 220;
 
 const STEPS = ONBOARDING_STEPS;
 
@@ -112,11 +114,18 @@ export function OnboardingCard({
   const hasStatsLayer = !!(overviewStep.statsBar?.length);
   const hasSlackLayer = !!(slackStep.slackSummary?.length);
 
+  const overviewChoreo = getChoreography("overview");
+  const slackChoreo = getChoreography("slack");
+  const slackRowDelaysMs = useMemo(
+    () => [slackChoreo.metadata, slackChoreo.metadata + slackChoreo.metadataStagger],
+    [slackChoreo.metadata, slackChoreo.metadataStagger]
+  );
+
   const ctaButton = (
     <button
       type="button"
       onClick={goNext}
-      className="onboarding-button onboarding-cta onboarding-cta-enter onboarding-cta-tap inline-flex items-center justify-center gap-2 border border-transparent transition-[box-shadow] duration-200 ease-out hover:scale-[1.02]"
+      className="onboarding-button onboarding-cta onboarding-cta-tap inline-flex items-center justify-center gap-2 border border-transparent transition-[box-shadow] duration-200 ease-out hover:scale-[1.02]"
       style={{
         height: "var(--onboarding-cta-height)",
         paddingLeft: "var(--onboarding-cta-padding-x)",
@@ -151,7 +160,10 @@ export function OnboardingCard({
           ref={topSectionRef}
           className="onboarding-card__top flex w-full flex-col items-center"
         >
-          <div className="onboarding-card-logo-enter">
+          <div
+            className={cn(stepIndex === 0 && !isExiting && "animate-enter")}
+            style={stepIndex === 0 && !isExiting ? staggerMs(getChoreography("welcome").logo) : undefined}
+          >
             <SolLogo />
           </div>
 
@@ -161,6 +173,7 @@ export function OnboardingCard({
                 (stepIndex === i && !isExiting) ||
                 (isExiting && exitingStepId === s.id);
               const exitingThis = isExiting && exitingStepId === s.id;
+              const ch = getChoreography(s.id);
 
               return (
                 <div
@@ -171,7 +184,7 @@ export function OnboardingCard({
                     visible
                       ? "relative z-10 opacity-100"
                       : "pointer-events-none absolute left-0 right-0 top-0 opacity-0",
-                    exitingThis && "onboarding-step-exit"
+                    exitingThis && "animate-exit"
                   )}
                   aria-hidden={!visible}
                 >
@@ -185,11 +198,12 @@ export function OnboardingCard({
                     <h1
                       className={cn(
                         "font-serif tracking-tight mx-auto w-[360px] text-[var(--onboarding-title-color)]",
-                        visible && "onboarding-card-title-enter"
+                        visible && !exitingThis && "animate-enter"
                       )}
                       style={{
                         fontSize: "var(--onboarding-title-size)",
                         lineHeight: "var(--onboarding-title-line)",
+                        ...(visible && !exitingThis ? staggerMs(ch.title) : {}),
                       }}
                     >
                       {s.title}
@@ -200,35 +214,44 @@ export function OnboardingCard({
                     <p
                       className={cn(
                         "mx-auto text-[var(--onboarding-subtitle-color)]",
-                        visible && "onboarding-card-subtitle-enter"
+                        visible && !exitingThis && "animate-enter"
                       )}
                       style={{
                         fontSize: "var(--onboarding-subtitle-size)",
                         lineHeight: "var(--onboarding-subtitle-line)",
                         maxWidth: "320px",
+                        ...(visible && !exitingThis ? staggerMs(ch.subtitle) : {}),
                       }}
                     >
                       <span>{s.subtitle}</span>
-                      <span>{s.footnote}</span>
+                      {s.footnote && !s.statsBar?.length ? <span>{s.footnote}</span> : null}
                     </p>
                   </div>
 
-                  {s.footnote && s.statsBar?.length ? (
+                  {s.footnote && s.statsBar?.length && visible && !exitingThis ? (
                     <p
-                      className="onboarding-footnote mb-0 mt-2 w-full text-center text-[var(--onboarding-footnote-color)]"
-                      style={{ fontSize: "var(--onboarding-footnote-size)" }}
-                    />
+                      className="onboarding-footnote animate-enter mb-0 mt-2 w-full text-center text-[var(--onboarding-footnote-color)]"
+                      style={{
+                        fontSize: "var(--onboarding-footnote-size)",
+                        ...staggerMs(ch.footnoteOrFooter),
+                      }}
+                    >
+                      {s.footnote}
+                    </p>
                   ) : null}
                   {s.footnote &&
                     !s.statsBar?.length &&
                     !s.metrics?.length &&
                     !s.slackSummary?.length && (
                       <p
-                        className="onboarding-footnote onboarding-animate-entry text-[var(--onboarding-footnote-color)]"
+                        className={cn(
+                          "onboarding-footnote text-[var(--onboarding-footnote-color)]",
+                          visible && !exitingThis && "animate-enter"
+                        )}
                         style={{
                           fontSize: "var(--onboarding-footnote-size)",
                           marginTop: "var(--onboarding-space-footnote-top)",
-                          animationDelay: "2s",
+                          ...(visible && !exitingThis ? staggerMs(ch.footnoteOrFooter) : {}),
                         }}
                       >
                         {s.footnote}
@@ -258,7 +281,11 @@ export function OnboardingCard({
                   )}
                   aria-hidden={stepIndex !== 1}
                 >
-                  <StatsBar items={overviewStep.statsBar} />
+                  <StatsBar
+                    items={overviewStep.statsBar}
+                    metadataBaseMs={overviewChoreo.metadata}
+                    metadataStaggerMs={overviewChoreo.metadataStagger}
+                  />
                 </div>
               )}
 
@@ -276,14 +303,23 @@ export function OnboardingCard({
                     sections={slackStep.slackSummary}
                     bottomDetail={slackStep.bottomDetail}
                     isActive={stepIndex === 2 && !isExiting}
+                    rowDelaysMs={slackRowDelaysMs}
+                    footerDelayMs={slackChoreo.footnoteOrFooter}
                   />
                 </div>
               )}
 
               {displayStep.bottomDetail && !displayStep.slackSummary?.length && (
                 <p
-                  className="onboarding-slack-section onboarding-slack-section-enter mt-[-12px] flex flex-col gap-3 rounded-[8px] border-b border-l border-r border-zinc-200/80 px-[25px] pt-[28px] pb-[13px] text-[var(--onboarding-footnote-size)] text-[#666]"
-                  style={{ animationDelay: "1.5s" }}
+                  className={cn(
+                    "onboarding-slack-section mt-[-12px] flex flex-col gap-3 rounded-[8px] border-b border-l border-r border-zinc-200/80 px-[25px] pt-[28px] pb-[13px] text-[var(--onboarding-footnote-size)] text-[#666]",
+                    stepIndex !== 2 && "animate-enter"
+                  )}
+                  style={
+                    stepIndex !== 2
+                      ? staggerMs(getChoreography(displayStep.id).footnoteOrFooter)
+                      : undefined
+                  }
                 >
                   {displayStep.bottomDetail}
                 </p>
@@ -299,9 +335,13 @@ export function OnboardingCard({
           <div
             className={cn(
               "relative z-[9999] mx-auto transition-opacity duration-200",
-              isExiting && "onboarding-step-exit"
+              !isExiting && "animate-enter",
+              isExiting && "animate-exit"
             )}
-            style={{ maxWidth: "var(--onboarding-card-width)" }}
+            style={{
+              maxWidth: "var(--onboarding-card-width)",
+              ...(!isExiting ? staggerMs(getChoreography(displayStep.id).cta) : {}),
+            }}
           >
             {ctaButton}
           </div>,
