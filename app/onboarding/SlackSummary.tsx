@@ -22,7 +22,7 @@ const SCROLL_VIEWPORT_MAX_H = "min(260px, 52vh)";
 const SCROLL_TOP_OFFSET = 12;
 
 const slackCard =
-  "rounded-[8px] border border-zinc-200/80 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.07)]";
+  "rounded-[8px] shadow-[0_1px_3px_rgba(0,0,0,0.07)]";
 
 function SparkIcon() {
   return (
@@ -100,7 +100,7 @@ function ItemIcon({ icon }: { icon?: ItemIconType | null }) {
 
 function RowContent({ section }: { section: SlackSummarySection }) {
   return (
-    <div className="flex items-center justify-between gap-4">
+    <div className="flex items-center justify-between gap-4 ">
       <div className="flex min-w-0 items-center gap-2 text-zinc-500">
         <SparkIcon />
         <span className="text-sm tracking-[-0.13px]" style={{ color: "#b2b2b2" }}>
@@ -228,14 +228,14 @@ export function SlackSummary({
           )}
           style={{ ...cardShellStyle, ...slackCardSlideStyle }}
         >
-          <div className="bg-white">
-            <div className="px-5 py-4">
+          <div className="flex flex-col gap-2">
+            <div className="border border-zinc-200/80 px-5 py-4 bg-white rounded-[8px]">
               <RowContent section={first} />
             </div>
             {openLoopsSection ? (
               <div
                 ref={openLoopsRowRef}
-                className="border-t border-zinc-200/80 px-5 py-4"
+                className="border border-zinc-200/80 px-5 py-4 bg-white rounded-[8px]"
               >
                 <RowContent section={openLoopsSection} />
               </div>
@@ -244,7 +244,7 @@ export function SlackSummary({
 
           {bottomDetail ? (
             <div
-              className="border-t border-zinc-200/80 bg-zinc-100/90 px-5 py-4 text-center text-[13px] leading-relaxed text-[#666]"
+              className="border border-zinc-200/80 bg-zinc-100/90 px-5 py-4 text-center text-[13px] leading-relaxed text-[#666] mt-[-15px] pt-[28px] z-[-1]"
               style={{ letterSpacing: "-0.13px" }}
             >
               <span
