@@ -362,7 +362,7 @@ export function OnboardingBottomCard({
   if (bottomPanel === "overview") {
     if (!hasOverview || !overviewItems) return null;
     return (
-      <section className="onboarding-card__bottom mt-[-8px] w-full pt-[8px]">
+      <section className="onboarding-card__bottom onboarding-card__bottom--sol-overview mt-[-8px] w-full pt-[8px]">
         <div className="onboarding-bottom-shell relative w-full">
           <OnboardingInsightsStrip
             placement="overview"

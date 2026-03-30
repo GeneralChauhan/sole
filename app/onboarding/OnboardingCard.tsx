@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import {
+  useState,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  type CSSProperties,
+} from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -112,6 +119,7 @@ export function OnboardingCard({
 
   const overviewChoreo = getChoreography("overview");
   const slackChoreo = getChoreography("slack");
+  const displayChoreo = getChoreography(displayStep.id);
 
   const showSlackSummary =
     stepIndex + 1 === ONBOARDING_SLACK_SUMMARY_STEP_ONE_BASED;
@@ -197,7 +205,16 @@ export function OnboardingCard({
                       style={{
                         fontSize: "var(--onboarding-title-size)",
                         lineHeight: "var(--onboarding-title-line)",
-                        ...(visible && !exitingThis ? staggerMs(ch.title) : {}),
+                        ...(visible && !exitingThis
+                          ? {
+                              ...staggerMs(ch.title),
+                              ...(ch.titleDurationMs != null
+                                ? ({
+                                    "--enter-duration": `${ch.titleDurationMs}ms`,
+                                  } as CSSProperties)
+                                : {}),
+                            }
+                          : {}),
                       }}
                     >
                       {s.title}
@@ -214,7 +231,16 @@ export function OnboardingCard({
                         fontSize: "var(--onboarding-subtitle-size)",
                         lineHeight: "var(--onboarding-subtitle-line)",
                         maxWidth: "380px",
-                        ...(visible && !exitingThis ? staggerMs(ch.subtitle) : {}),
+                        ...(visible && !exitingThis
+                          ? {
+                              ...staggerMs(ch.subtitle),
+                              ...(ch.subtitleDurationMs != null
+                                ? ({
+                                    "--enter-duration": `${ch.subtitleDurationMs}ms`,
+                                  } as CSSProperties)
+                                : {}),
+                            }
+                          : {}),
                       }}
                     >
                       <span style={{ whiteSpace: "pre-line" }}>{s.subtitle}</span>
@@ -287,7 +313,16 @@ export function OnboardingCard({
             )}
             style={{
               maxWidth: "var(--onboarding-card-width)",
-              ...(!isExiting ? staggerMs(getChoreography(displayStep.id).cta) : {}),
+              ...(!isExiting
+                ? {
+                    ...staggerMs(displayChoreo.cta),
+                    ...(displayChoreo.ctaDurationMs != null
+                      ? ({
+                          "--enter-duration": `${displayChoreo.ctaDurationMs}ms`,
+                        } as CSSProperties)
+                      : {}),
+                  }
+                : {}),
             }}
           >
             {ctaButton}

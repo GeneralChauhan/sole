@@ -53,7 +53,7 @@ body {
 
 .animate-enter {
   opacity: 0;
-  animation: fadeSlideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation: fadeSlideUp var(--enter-duration, 0.6s) cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
   animation-delay: var(--stagger, 0ms);
 }
 
@@ -62,10 +62,11 @@ body {
   animation: fadeOut 0.2s ease-out forwards;
 }
 
-/* Overview step: fade+slide only on this shell (see OnboardingInsightsStrip overview card) */
+/* Overview step: fade+slide on stats shell (Sol reference: duration-700 delay-1650 on Covered row) */
 .onboarding-insights-strip__overview-fade-enter {
   opacity: 0;
-  animation: fadeSlideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation: fadeSlideUp var(--overview-strip-duration, 0.7s) cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation-delay: var(--stagger, 0ms);
 }
 
 /* OnboardingInsightsStrip: overview stats leave + Slack footer enter (shared motion) */
@@ -75,14 +76,14 @@ body {
 
 .onboarding-insights-strip__footer-enter {
   opacity: 0;
-  animation: fadeSlideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation: fadeSlideUp var(--enter-duration, 0.6s) cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
   animation-delay: var(--stagger, 0ms);
 }
 
 /* Extra Slack summary row (not the insights strip footer) */
 .onboarding-bottom-slack-last-fade {
   opacity: 0;
-  animation: fadeSlideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation: fadeSlideUp var(--enter-duration, 0.6s) cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
   animation-delay: var(--stagger, 0ms);
 }
 
@@ -182,7 +183,9 @@ body {
   background: #FFF;
   /* Must match keyframes `from` — weaker values (e.g. -66%) leave a sliver before the delay ends */
   transform: translateY(-110%);
-  animation: onboarding-card-bottom-slide-down 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+  /* Default beat; overview insights uses Sol timings via --bottom-card-* */
+  animation: onboarding-card-bottom-slide-down var(--bottom-card-duration, 0.35s)
+    cubic-bezier(0.16, 1, 0.3, 1) var(--bottom-card-delay, 0.35s) both;
   border-radius: 0 0 8px 8px;
   border: 1px solid #EAEAEA;
   /* Smooth transition for step 2→3 container style change */
@@ -191,6 +194,12 @@ body {
               background-color 0.35s ease-out,
               border-color 0.35s ease-out,
               border-radius 0.35s ease-out;
+}
+
+/* Insights overview: bottom panel follows hero copy (Sol: strip wrappers use delay-900). */
+.onboarding-card__bottom--sol-overview {
+  --bottom-card-delay: 900ms;
+  --bottom-card-duration: 0.7s;
 }
 
 /* Slack step: no card background so sections sit on page background */

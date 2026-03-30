@@ -248,6 +248,18 @@ export function OnboardingInsightsStrip(props: OnboardingInsightsStripProps) {
               !prefersReducedMotion &&
               "onboarding-insights-strip--overview-leaving"
           )}
+          style={
+            isActive && !prefersReducedMotion
+              ? {
+                  ...staggerMs(choreo.metadata),
+                  ...(choreo.metadataDurationMs != null
+                    ? ({
+                        "--overview-strip-duration": `${choreo.metadataDurationMs}ms`,
+                      } as CSSProperties)
+                    : {}),
+                }
+              : undefined
+          }
         >
           <OverviewStatsRow
             items={items}
