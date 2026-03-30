@@ -43,54 +43,54 @@ export type OnboardingStep = {
   ctaLabel: string;
 };
 
-export const ONBOARDING_USER_NAME = "Andrew";
+export const ONBOARDING_USER_NAME = "Aayush";
+
+/**
+ * 1-based step index (?step= in URL) at which `slackSummary` (and bottom Slack UI) should render.
+ * Step 2 (overview) does not show it; step 3 (slack) does.
+ */
+export const ONBOARDING_SLACK_SUMMARY_STEP_ONE_BASED = 3;
 
 export const ONBOARDING_STEPS: OnboardingStep[] = [
   {
     id: "welcome",
     title: `Welcome, ${ONBOARDING_USER_NAME}`,
     subtitle:
-      "Your open loops are captured & organized. Time to start closing them.",
+      "Your open loops are captured & organized.\nTime to start closing them.",
     ctaLabel: "Let's go",
   },
   {
     id: "overview",
-    title: "First, here's what we sifted through so far...",
-    subtitle: "This is across the last 14 days.",
-    footnote: "Open loops from earlier will be captured soon.",
+    title: "Here's what I've covered.",
+    subtitle: "This is across the last 28 days.\nGoing through older conversations as we speak",
     statsBar: [
-      { icon: "plus", label: "Analyzed so far", highlight: true },
-      { icon: "messages", label: "600 messages" },
-      { icon: "threads", label: "88 threads" },
-      { icon: "channels", label: "25 channels" },
+      { icon: "plus", label: "Covered", highlight: true },
+      { icon: "messages", label: "200 emails" },
     ],
     ctaLabel: "Show me what you found",
   },
   {
     id: "slack",
-    title: "Across your Slack, here's what we found",
-    subtitle: "Sol will continue to find older & newer items over time",
+    title: "Here's what I found",
+    subtitle: "From 200 most recent emails",
     ctaLabel: "Proceed",
     slackSummary: [
       {
-        label: "Open loops found",
+        label: "Collaborating with",
         primary: [
-          { value: "17", label: "open on you", icon: "open" },
-          { value: "37", label: "awaited on others", icon: "awaited" },
+          { value: "8", label: "people", icon: "person" },
+          { value: "", label: "across", icon: null },
+          { value: "6", label: "topics", icon: "document" },
         ],
       },
       {
-        label: "You are collaborating with",
+        label: "Open loops",
         primary: [
-          { value: "14", label: "people", icon: "person" },
-          { value: "", label: "across", icon: null },
-          { value: "8", label: "topics", icon: "document" },
+          { value: "11", label: "open on you", icon: "open" },
         ],
       },
-      
-      
     ],
-    bottomDetail: "8 new this week, 7 have turned inactive & 4 are overdue",
+    bottomDetail: "4 new this week & 1 have turned inactive",
   },
 ];
 

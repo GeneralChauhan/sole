@@ -34,8 +34,9 @@ export const ONBOARDING_CHOREOGRAPHY: Record<OnboardingStepId, StepChoreography>
     logo: 0,
     title: 100,
     subtitle: 200,
+    /** One metadata row (Covered | 200 emails) enters as a single beat. */
     metadata: 300,
-    metadataStagger: 80,
+    metadataStagger: 0,
     footnoteOrFooter: 450,
     cta: 500,
   },
@@ -43,9 +44,11 @@ export const ONBOARDING_CHOREOGRAPHY: Record<OnboardingStepId, StepChoreography>
     logo: 0,
     title: 100,
     subtitle: 200,
-    metadata: 300,
-    metadataStagger: 100,
-    footnoteOrFooter: 500,
+    /** Grey footer after hero; rows reveal via scroll, not stagger. */
+    metadata: 0,
+    metadataStagger: 0,
+    /** Tight vs overview footnote so the bottom line doesn’t feel like a second crossfade after the swap. */
+    footnoteOrFooter: 120,
     cta: 700,
   },
 };

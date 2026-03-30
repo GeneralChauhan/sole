@@ -7,7 +7,12 @@ const OnboardingFlow = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="min-h-screen" style={{ backgroundColor: "var(--onboarding-bg, #ffffff)" }} />
+      <div
+        className="flex min-h-screen items-center justify-center"
+        style={{ backgroundColor: "var(--onboarding-bg, #ffffff)" }}
+      >
+        <p className="onboarding-loading-text">Loading...</p>
+      </div>
     ),
   }
 );

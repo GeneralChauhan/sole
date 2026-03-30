@@ -1,19 +1,19 @@
 "use client";
 
-import { useState, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { useState, useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { OnboardingStep } from "./data";
 import {
+  ONBOARDING_SLACK_SUMMARY_STEP_ONE_BASED,
   ONBOARDING_STEPS,
   getInitialStepIndexFromLocation,
   parseOnboardingStepIndexFromParam,
 } from "./data";
 import { getChoreography, staggerMs } from "./choreography";
+import { OnboardingBottomCard } from "./OnboardingBottomCard";
 import { SolLogo } from "./SolLogo";
-import { StatsBar } from "./StatsBar";
-import { SlackSummary } from "./SlackSummary";
 
 /** Match `.animate-exit` / `.onboarding-step-exit` — `fadeOut` 0.2s + small buffer. */
 const STEP_FADE_OUT_MS = 220;
@@ -107,20 +107,14 @@ export function OnboardingCard({
     }
   }, [stepIndex]);
 
-  const showBottomShell = stepIndex >= 1;
-
   const overviewStep = STEPS[1];
   const slackStep = STEPS[2];
-  const hasStatsLayer = !!(overviewStep.statsBar?.length);
-  const hasSlackLayer = !!(slackStep.slackSummary?.length);
 
   const overviewChoreo = getChoreography("overview");
   const slackChoreo = getChoreography("slack");
-  const slackRowDelaysMs = useMemo(
-    () => [slackChoreo.metadata, slackChoreo.metadata + slackChoreo.metadataStagger],
-    [slackChoreo.metadata, slackChoreo.metadataStagger]
-  );
 
+  const showSlackSummary =
+    stepIndex + 1 === ONBOARDING_SLACK_SUMMARY_STEP_ONE_BASED;
   const ctaButton = (
     <button
       type="button"
@@ -219,11 +213,11 @@ export function OnboardingCard({
                       style={{
                         fontSize: "var(--onboarding-subtitle-size)",
                         lineHeight: "var(--onboarding-subtitle-line)",
-                        maxWidth: "320px",
+                        maxWidth: "380px",
                         ...(visible && !exitingThis ? staggerMs(ch.subtitle) : {}),
                       }}
                     >
-                      <span>{s.subtitle}</span>
+                      <span style={{ whiteSpace: "pre-line" }}>{s.subtitle}</span>
                       {s.footnote && !s.statsBar?.length ? <span>{s.footnote}</span> : null}
                     </p>
                   </div>
@@ -263,69 +257,22 @@ export function OnboardingCard({
           </div>
         </section>
 
-        {showBottomShell && (
-          <section
-            className={cn(
-              "onboarding-card__bottom mt-[-8px] w-full pt-[8px]",
-              stepIndex === 2 && "onboarding-card__bottom--transparent"
-            )}
-          >
-            <div className="onboarding-bottom-shell relative">
-              {hasStatsLayer && overviewStep.statsBar && (
-                <div
-                  className={cn(
-                    "onboarding-bottom-layer transition-opacity duration-500 ease-out",
-                    stepIndex === 1
-                      ? "relative z-10 opacity-100"
-                      : "pointer-events-none absolute inset-0 opacity-0"
-                  )}
-                  aria-hidden={stepIndex !== 1}
-                >
-                  <StatsBar
-                    items={overviewStep.statsBar}
-                    metadataBaseMs={overviewChoreo.metadata}
-                    metadataStaggerMs={overviewChoreo.metadataStagger}
-                  />
-                </div>
-              )}
-
-              {hasSlackLayer && slackStep.slackSummary && (
-                <div
-                  className={cn(
-                    "onboarding-bottom-layer transition-opacity duration-500 ease-out",
-                    stepIndex === 2
-                      ? "relative z-10 opacity-100"
-                      : "pointer-events-none absolute inset-0 opacity-0"
-                  )}
-                  aria-hidden={stepIndex !== 2}
-                >
-                  <SlackSummary
-                    sections={slackStep.slackSummary}
-                    bottomDetail={slackStep.bottomDetail}
-                    isActive={stepIndex === 2 && !isExiting}
-                    rowDelaysMs={slackRowDelaysMs}
-                    footerDelayMs={slackChoreo.footnoteOrFooter}
-                  />
-                </div>
-              )}
-
-              {displayStep.bottomDetail && !displayStep.slackSummary?.length && (
-                <p
-                  className={cn(
-                    "onboarding-slack-section mt-[-12px] flex flex-col gap-3 rounded-[8px] border-b border-l border-r border-zinc-200/80 px-[25px] pt-[28px] pb-[13px] text-[var(--onboarding-footnote-size)] text-[#666]",
-                    stepIndex !== 2 && "animate-enter"
-                  )}
-                  style={
-                    stepIndex !== 2
-                      ? staggerMs(getChoreography(displayStep.id).footnoteOrFooter)
-                      : undefined
-                  }
-                >
-                  {displayStep.bottomDetail}
-                </p>
-              )}
-            </div>
-          </section>
+        {stepIndex >= 1 && (
+          <OnboardingBottomCard
+            bottomPanel={stepIndex === 1 ? "overview" : "slack"}
+            isExiting={isExiting}
+            exitingStepId={exitingStepId}
+            overviewItems={overviewStep.statsBar}
+            overviewChoreo={overviewChoreo}
+            showSlackSummary={showSlackSummary}
+            slackSections={
+              showSlackSummary ? slackStep.slackSummary : undefined
+            }
+            slackBottomDetail={
+              showSlackSummary ? slackStep.bottomDetail : undefined
+            }
+            slackChoreo={slackChoreo}
+          />
         )}
       </div>
 

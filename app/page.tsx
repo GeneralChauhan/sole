@@ -6,7 +6,12 @@ export default function Home() {
     <div className="min-h-screen" style={{ backgroundColor: "var(--onboarding-bg, #ffffff)" }}>
       <Suspense
         fallback={
-          <div className="min-h-screen" style={{ backgroundColor: "var(--onboarding-bg, #ffffff)" }} />
+          <div
+            className="flex min-h-screen items-center justify-center"
+            style={{ backgroundColor: "var(--onboarding-bg, #ffffff)" }}
+          >
+            <p className="onboarding-loading-text">Loading...</p>
+          </div>
         }
       >
         <OnboardingFlowClient />
