@@ -62,8 +62,7 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
   {
     id: "overview",
     title: "Here's what I've covered.",
-    subtitle:
-      "This is across the last 15 days.\nGoing through older conversations as we speak",
+    subtitle: "This is across the last 28 days.\nGoing through older conversations as we speak",
     statsBar: [
       { icon: "plus", label: "Covered", highlight: true },
       { icon: "messages", label: "200 emails" },
