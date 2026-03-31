@@ -266,37 +266,19 @@ function OverviewInsightsCrossfade({
 
 /* ----- Slack row icons ----- */
 
-const slackSections1 = [
+const slackSections1: SlackSummarySection[] = [
   {
-      "label": "Collaborating with",
-      "primary": [
-          {
-              "value": "8",
-              "label": "people",
-              "icon": "person"
-          },
-          {
-              "value": "",
-              "label": "across",
-              "icon": null
-          },
-          {
-              "value": "6",
-              "label": "topics",
-              "icon": "document"
-          }
-      ]
+    label: "Collaborating with",
+    primary: [
+      { value: "8", label: "people", icon: "person" },
+      { value: "", label: "across", icon: null },
+      { value: "6", label: "topics", icon: "document" },
+    ],
   },
   {
-      "label": "Open loops",
-      "primary": [
-          {
-              "value": "11",
-              "label": "open on you",
-              "icon": "open"
-          }
-      ]
-  }
+    label: "Open loops",
+    primary: [{ value: "11", label: "open on you", icon: "open" }],
+  },
 ];
 
 function SparkIcon() {
@@ -531,8 +513,7 @@ export function OnboardingBottomCard({
           }
             </div>
 
-
-          
+          {overviewItems && (
             <OverviewInsightsCrossfade
               items={overviewItems}
               choreo={overviewChoreo}
@@ -540,6 +521,7 @@ export function OnboardingBottomCard({
               detailLine={overviewDetailLine}
               bottomPanel={bottomPanel}
             />
+          )}
       </div>
     </section>
   );
