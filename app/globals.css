@@ -34,7 +34,7 @@ body {
 @keyframes fadeSlideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(-20px);
   }
   to {
     opacity: 1;
@@ -71,6 +71,17 @@ body {
 /* OnboardingInsightsStrip: overview stats leave + Slack footer enter (shared motion) */
 .onboarding-insights-strip--overview-leaving .onboarding-stats-bar {
   animation: fadeOut 0.2s ease-out forwards;
+}
+
+/* Overview: detail line sits behind stats; fades in after stats finish leaving (0.2s) */
+.onboarding-insights-strip__overview-detail {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Applied on the detail node when overview CTA is clicked (pair with longer exit delay in OnboardingCard). */
+.onboarding-insights-strip__overview-detail-enter {
+  animation: fadeSlideUp 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both;
 }
 
 .onboarding-insights-strip__footer-enter {
@@ -169,28 +180,34 @@ body {
   }
   to {
     transform: translateY(-5%);
-    /* transform: translateY(0); */
   }
 }
 
 
 .onboarding-card__bottom {
-  padding: 32px 20px 24px 20px;
   position: relative;
   z-index: 0;
   overflow: hidden;
-  background: #FFF;
+  /* background: #FFF; */
   /* Must match keyframes `from` — weaker values (e.g. -66%) leave a sliver before the delay ends */
-  transform: translateY(-110%);
-  animation: onboarding-card-bottom-slide-down 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+  transform: translateY(-67%);
+  /* animation: onboarding-card-bottom-slide-down 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both; */
   border-radius: 0 0 8px 8px;
-  border: 1px solid #EAEAEA;
+  /* border: 1px solid #EAEAEA; */
   /* Smooth transition for step 2→3 container style change */
   transition: opacity 0.25s ease-out,
               padding 0.4s cubic-bezier(0.16, 1, 0.3, 1),
               background-color 0.35s ease-out,
               border-color 0.35s ease-out,
               border-radius 0.35s ease-out;
+}
+
+/**
+ * Same motion as default bottom card (`onboarding-card-bottom-slide-down`: -110% → -5%),
+ * but slower — reads like easing into the final “scroll” position.
+ */
+.onboarding-card__bottom--slide-slow {
+  animation: onboarding-card-bottom-slide-down 1.85s cubic-bezier(0.22, 1, 0.32, 1) 0.2s both;
 }
 
 /* Slack step: no card background so sections sit on page background */
@@ -302,12 +319,25 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .onboarding-insights-strip__overview-fade-enter,
-  .onboarding-insights-strip--overview-leaving .onboarding-stats-bar,
   .onboarding-insights-strip__footer-enter,
   .onboarding-bottom-slack-first-row--position-enter,
   .onboarding-bottom-slack-last-fade {
     animation-duration: 0.01ms;
     animation-delay: 0s;
+    opacity: 1;
+  }
+  /* Leave crossfade: snap to end state (stats hidden, detail visible) */
+  .onboarding-insights-strip--overview-leaving .onboarding-stats-bar {
+    animation-duration: 0.01ms;
+    animation-delay: 0s;
+  }
+  .onboarding-insights-strip__overview-detail-enter {
+    animation-duration: 1.6s;
+    animation-delay: 0s;
+    opacity: 1;
+  }
+  /* No enter class when reduced motion — snap detail visible on leave */
+  .onboarding-insights-strip--overview-leaving .onboarding-insights-strip__overview-detail {
     opacity: 1;
   }
   .onboarding-bottom-slack-stack--shift-down {
@@ -323,10 +353,12 @@ body {
   .onboarding-banner-exit,
   .onboarding-banner-text-1,
   .onboarding-banner-text-2,
-  .onboarding-card__bottom {
+  .onboarding-card__bottom,
+  .onboarding-card__bottom--slide-slow {
     animation-duration: 0.01ms;
   }
-  .onboarding-card__bottom {
+  .onboarding-card__bottom,
+  .onboarding-card__bottom--slide-slow {
     transform: translateY(0);
     animation-delay: 0s;
   }

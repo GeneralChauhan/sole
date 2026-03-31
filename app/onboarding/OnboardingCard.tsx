@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { OnboardingStep } from "./data";
 import {
+  ONBOARDING_OVERVIEW_EXIT_EVENT,
   ONBOARDING_SLACK_SUMMARY_STEP_ONE_BASED,
   ONBOARDING_STEPS,
   getInitialStepIndexFromLocation,
@@ -17,6 +18,12 @@ import { SolLogo } from "./SolLogo";
 
 /** Match `.animate-exit` / `.onboarding-step-exit` — `fadeOut` 0.2s + small buffer. */
 const STEP_FADE_OUT_MS = 220;
+
+/**
+ * Overview bottom crossfade: stats `fadeOut` 0.2s, then detail `fadeSlideUp` 0.6s after 0.2s delay.
+ * Step must not advance until that finishes or the detail never mounts long enough to animate.
+ */
+const STEP_OVERVIEW_EXIT_MS = 820;
 
 const STEPS = ONBOARDING_STEPS;
 
@@ -60,6 +67,11 @@ export function OnboardingCard({
     }
     const nextIndex = stepIndex + 1;
     setExitingStepId(step.id);
+    if (step.id === "overview" && typeof window !== "undefined") {
+      window.dispatchEvent(new Event(ONBOARDING_OVERVIEW_EXIT_EVENT));
+    }
+    const exitDelayMs =
+      step.id === "overview" ? STEP_OVERVIEW_EXIT_MS : STEP_FADE_OUT_MS;
     exitTimeoutRef.current = setTimeout(() => {
       const el = topSectionRef.current;
       const fromHeight = el ? el.getBoundingClientRect().height : undefined;
@@ -74,7 +86,7 @@ export function OnboardingCard({
       params.set("step", String(nextIndex + 1));
       const q = params.toString();
       router.replace(q ? `${pathname}?${q}` : pathname, { scroll: false });
-    }, STEP_FADE_OUT_MS);
+    }, exitDelayMs);
   }, [isLastStep, step.id, onComplete, stepIndex, pathname, router]);
 
   useEffect(() => {
@@ -264,6 +276,7 @@ export function OnboardingCard({
             exitingStepId={exitingStepId}
             overviewItems={overviewStep.statsBar}
             overviewChoreo={overviewChoreo}
+            overviewDetailLine={slackStep.bottomDetail}
             showSlackSummary={showSlackSummary}
             slackSections={
               showSlackSummary ? slackStep.slackSummary : undefined

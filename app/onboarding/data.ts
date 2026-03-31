@@ -3,6 +3,9 @@
  * Structured for clarity and easy swap to API later.
  */
 
+/** Fired when overview step CTA is pressed; bottom crossfade listens so leave state is not driven by props. */
+export const ONBOARDING_OVERVIEW_EXIT_EVENT = "onboarding-overview-exit";
+
 export type InsightMetric = {
   value: string;
   label: string;

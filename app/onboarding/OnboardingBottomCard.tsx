@@ -9,48 +9,296 @@ import {
   type CSSProperties,
 } from "react";
 import type { SlackSummarySection, StatsBarItem } from "./data";
+import { ONBOARDING_OVERVIEW_EXIT_EVENT } from "./data";
 import type { StepChoreography } from "./choreography";
-import { staggerMs } from "./choreography";
-import {
-  OnboardingInsightsStrip,
-  OverviewStatsRow,
-} from "./OnboardingInsightsStrip";
 
-/** Must match `.onboarding-insights-strip__footer-enter` / `.onboarding-bottom-slack-last-fade` (fadeSlideUp) in globals.css. */
-const ENTER_ANIM_MS = 600;
-const REVEAL_ROWS_AFTER_FOOTER_MS = 220;
-/** Hold overview / first beat before swapping to first Slack row. */
-const SLACK_HOLD_BEFORE_LAST_MS = 240;
-/** Time from second-row text start → footer text start (matches slack `footnoteOrFooter`). */
-function slackFooterStartAfterSecondRowMs(slackChoreo: StepChoreography) {
-  return slackChoreo.footnoteOrFooter;
-}
-/** Shift after footer line has finished entering (or after second row if no footer). */
-function slackShiftAtMs(
-  slackChoreo: StepChoreography,
-  hasFooter: boolean
-) {
-  const secondRowAt = SLACK_HOLD_BEFORE_LAST_MS + ENTER_ANIM_MS;
-  if (!hasFooter) {
-    return secondRowAt + ENTER_ANIM_MS;
-  }
-  const footerAt =
-    secondRowAt + slackFooterStartAfterSecondRowMs(slackChoreo);
-  return footerAt + ENTER_ANIM_MS;
-}
 const SCROLL_VIEWPORT_MAX_H = "min(260px, 52vh)";
-const SCROLL_TOP_OFFSET = 12;
 const iconSize = 20;
 
 const cardShell = "rounded-[8px]";
-
-const EMPTY_SLACK_SECTIONS: SlackSummarySection[] = [];
 
 function cn(...parts: (string | boolean | undefined)[]) {
   return parts.filter(Boolean).join(" ");
 }
 
+/* ----- Overview stats bar (icons + row) — was OnboardingInsightsStrip overview ----- */
+
+function StatsPlusIcon() {
+  return (
+    <Image
+      src="/star.svg"
+      alt=""
+      width={iconSize}
+      height={iconSize}
+      className="size-5 shrink-0 object-contain"
+      aria-hidden
+    />
+  );
+}
+
+function StatsMessagesIcon() {
+  return (
+    <Image
+      src="/msg.svg"
+      alt=""
+      width={iconSize}
+      height={iconSize}
+      className="size-5 shrink-0 object-contain"
+      aria-hidden
+    />
+  );
+}
+
+function StatsThreadsIcon() {
+  return (
+    <Image
+      src="/conversation.svg"
+      alt=""
+      width={iconSize}
+      height={iconSize}
+      className="size-5 shrink-0 object-contain"
+      aria-hidden
+    />
+  );
+}
+
+function StatsHashtagIcon() {
+  return (
+    <Image
+      src="/hash.svg"
+      alt=""
+      width={iconSize}
+      height={iconSize}
+      className="size-5 shrink-0 object-contain"
+      aria-hidden
+    />
+  );
+}
+
+function StatsBarIcon({ item }: { item: StatsBarItem }) {
+  switch (item.icon) {
+    case "plus":
+      return <StatsPlusIcon />;
+    case "messages":
+      return <StatsMessagesIcon />;
+    case "threads":
+      return <StatsThreadsIcon />;
+    case "channels":
+      return <StatsHashtagIcon />;
+    default:
+      return null;
+  }
+}
+
+export function OverviewStatsRow({
+  items,
+  metadataBaseMs,
+  metadataStaggerMs,
+  isActive,
+  prefersReducedMotion,
+}: {
+  items: StatsBarItem[];
+  metadataBaseMs: number;
+  metadataStaggerMs: number;
+  isActive: boolean;
+  prefersReducedMotion: boolean;
+}) {
+  const rightItems = items.slice(1);
+  const leftItems = items.slice(0, 1);
+
+  const delayForIndex = (i: number): CSSProperties => {
+    const stagger = metadataStaggerMs === 0 ? 0 : i * metadataStaggerMs;
+    return { "--stagger": `${metadataBaseMs + stagger}ms` } as CSSProperties;
+  };
+
+  const useEnter = isActive && !prefersReducedMotion;
+
+  return (
+    <div
+      className="onboarding-stats-bar w-full"
+      role="list"
+      aria-label="Data summary"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-row items-center gap-2">
+          {leftItems.map((item, i) => (
+            <div
+              key={item.icon + item.label + i}
+              className={cn(
+                "onboarding-stats-bar-item flex flex-row items-center gap-2",
+                useEnter && "animate-enter"
+              )}
+              role="listitem"
+              style={useEnter ? delayForIndex(i) : undefined}
+            >
+              <span
+                className={
+                  item.highlight ? "text-[#60a5fa]" : "text-zinc-400"
+                }
+              >
+                <StatsBarIcon item={item} />
+              </span>
+              <span className="text-[13px] text-zinc-500">
+                {item.prefix && (
+                  <span
+                    className="text-zinc-500"
+                    style={{
+                      fontWeight: 500,
+                      lineHeight: "150%",
+                      letterSpacing: "-0.13px",
+                    }}
+                  >
+                    {item.prefix}{" "}
+                  </span>
+                )}
+                {item.label}
+              </span>
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-row items-center gap-[16px]">
+          {rightItems.map((item, i) => (
+            <div
+              key={item.icon + item.label + i}
+              className={cn(
+                "onboarding-stats-bar-item flex flex-row items-center gap-2",
+                useEnter && "animate-enter"
+              )}
+              role="listitem"
+              style={useEnter ? delayForIndex(leftItems.length + i) : undefined}
+            >
+              <span
+                className={
+                  item.highlight ? "text-[#60a5fa]" : "text-zinc-400"
+                }
+              >
+                <StatsBarIcon item={item} />
+              </span>
+              <span className="text-[13px] text-zinc-500">
+                {item.prefix && (
+                  <span className="text-zinc-500">{item.prefix} </span>
+                )}
+                {item.label}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OverviewInsightsCrossfade({
+  items,
+  choreo,
+  prefersReducedMotion,
+  detailLine,
+  bottomPanel,
+}: {
+  items: StatsBarItem[];
+  choreo: StepChoreography;
+  prefersReducedMotion: boolean;
+  detailLine: string;
+  bottomPanel: OnboardingBottomPanel;
+}) {
+  const [leaveLatched, setLeaveLatched] = useState(false);
+
+  useLayoutEffect(() => {
+    const onExit = () => setLeaveLatched(true);
+    window.addEventListener(ONBOARDING_OVERVIEW_EXIT_EVENT, onExit);
+    return () =>
+      window.removeEventListener(ONBOARDING_OVERVIEW_EXIT_EVENT, onExit);
+  }, []);
+
+  const isLeaving = leaveLatched;
+  const isActive = !isLeaving;
+
+  const shellStyle: CSSProperties = {
+    marginTop: "20px",
+  };
+
+  return (
+    <div className="onboarding-insights-strip onboarding-insights-strip--overview w-full bg-zinc-100\/90 mt-[-15px] relative" 
+    style={{ padding: "12px 20px 24px 20px", border: "1px solid #EAEAEA", zIndex: -2 }}
+    >
+      <div
+        className={cn(cardShell, "relative z-0 flex flex-col overflow-hidden")}
+        style={shellStyle}
+      >
+        <div
+          className={cn(
+            "relative w-full",
+            isLeaving && "onboarding-insights-strip--overview-leaving"
+          )}
+        >
+          <div
+            className={cn(
+              "relative z-[1] w-full",
+              isActive &&
+                !prefersReducedMotion &&
+                "onboarding-insights-strip__overview-fade-enter"
+            )}
+          >
+            <OverviewStatsRow
+              items={items}
+              metadataBaseMs={choreo.metadata}
+              metadataStaggerMs={choreo.metadataStagger}
+              isActive={false}
+              prefersReducedMotion={prefersReducedMotion}
+            />
+          </div>
+          <div
+            className={cn(
+              "onboarding-insights-strip__overview-detail absolute inset-x-0 top-0 bottom-0 z-0 flex items-center justify-center text-center text-[13px] leading-relaxed text-[#666]",
+              bottomPanel === "slack" &&
+                !prefersReducedMotion &&
+                "onboarding-insights-strip__overview-detail-enter"
+            )}
+            style={{ letterSpacing: "-0.13px" }}
+            aria-hidden={bottomPanel === "overview"}
+          >
+            {detailLine}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ----- Slack row icons ----- */
+
+const slackSections1 = [
+  {
+      "label": "Collaborating with",
+      "primary": [
+          {
+              "value": "8",
+              "label": "people",
+              "icon": "person"
+          },
+          {
+              "value": "",
+              "label": "across",
+              "icon": null
+          },
+          {
+              "value": "6",
+              "label": "topics",
+              "icon": "document"
+          }
+      ]
+  },
+  {
+      "label": "Open loops",
+      "primary": [
+          {
+              "value": "11",
+              "label": "open on you",
+              "icon": "open"
+          }
+      ]
+  }
+];
 
 function SparkIcon() {
   return (
@@ -185,6 +433,8 @@ export type OnboardingBottomCardProps = {
   exitingStepId: string | null;
   overviewItems?: StatsBarItem[];
   overviewChoreo: StepChoreography;
+  /** Shown after stats fade when the overview CTA is clicked (same line as Slack footer detail). */
+  overviewDetailLine?: string;
   slackSections?: SlackSummarySection[];
   slackBottomDetail?: string;
   slackChoreo: StepChoreography;
@@ -201,153 +451,27 @@ export function OnboardingBottomCard({
   exitingStepId,
   overviewItems,
   overviewChoreo,
+  overviewDetailLine = "4 new this week & 1 have turned inactive",
   slackSections,
-  slackBottomDetail,
-  slackChoreo,
+  slackBottomDetail: _slackBottomDetail,
+  slackChoreo: _slackChoreo,
   showSlackSummary = true,
 }: OnboardingBottomCardProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const revealTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const hasOverview = !!(overviewItems?.length);
   const hasSlack = !!(slackSections?.length);
-  const slackSectionsForEffect = slackSections ?? EMPTY_SLACK_SECTIONS;
-  const slackActive =
-    bottomPanel === "slack" && !isExiting && hasSlack;
-  const slackFooterDelayMs = slackChoreo.footnoteOrFooter;
-
-  /** 0 overview shell | 1 first Slack row | 2 second row | 3 footer line | 4 shift down */
-  const [slackSeqPhase, setSlackSeqPhase] = useState<0 | 1 | 2 | 3 | 4>(0);
-
-  useEffect(() => {
-    return () => {
-      if (revealTimeoutRef.current) clearTimeout(revealTimeoutRef.current);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (bottomPanel !== "slack") {
-      setSlackSeqPhase(0);
-      return;
-    }
-
-    let slackSecond: SlackSummarySection | undefined;
-    if (slackSections?.length) {
-      const [, ...rest] = slackSections;
-      slackSecond = rest[0];
-    }
-
-    if (prefersReducedMotion) {
-      setSlackSeqPhase(4);
-      return;
-    }
-
-    setSlackSeqPhase(0);
-
-    const t1 = window.setTimeout(() => {
-      setSlackSeqPhase(1);
-    }, SLACK_HOLD_BEFORE_LAST_MS);
-
-    const hasFooter = !!slackBottomDetail;
-    const secondRowAt = SLACK_HOLD_BEFORE_LAST_MS + ENTER_ANIM_MS;
-    const footerAt =
-      secondRowAt + slackFooterStartAfterSecondRowMs(slackChoreo);
-    const shiftAt = slackShiftAtMs(slackChoreo, hasFooter);
-
-    if (!slackSecond) {
-      const tFooter = hasFooter
-        ? window.setTimeout(() => setSlackSeqPhase(3), footerAt)
-        : null;
-      const tShift = window.setTimeout(() => setSlackSeqPhase(4), shiftAt);
-      return () => {
-        clearTimeout(t1);
-        if (tFooter) clearTimeout(tFooter);
-        clearTimeout(tShift);
-      };
-    }
-
-    const t2 = window.setTimeout(() => setSlackSeqPhase(2), secondRowAt);
-    const t3 = hasFooter
-      ? window.setTimeout(() => setSlackSeqPhase(3), footerAt)
-      : null;
-    const t4 = window.setTimeout(() => setSlackSeqPhase(4), shiftAt);
-
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      if (t3) clearTimeout(t3);
-      clearTimeout(t4);
-    };
-  }, [
-    bottomPanel,
-    slackSections,
-    prefersReducedMotion,
-    slackBottomDetail,
-    slackChoreo,
-  ]);
-
-  useLayoutEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    if (!slackActive || prefersReducedMotion) {
-      el.scrollTop = 0;
-      return;
-    }
-    const snapToFooter = () => {
-      el.scrollTop = Math.max(0, el.scrollHeight - el.clientHeight);
-    };
-    snapToFooter();
-    requestAnimationFrame(snapToFooter);
-  }, [
-    slackActive,
-    prefersReducedMotion,
-    slackSectionsForEffect,
-    slackBottomDetail,
-    slackSeqPhase,
-  ]);
-
-  useEffect(() => {
-    if (!slackActive || prefersReducedMotion || !slackBottomDetail) return;
-    if (slackSeqPhase < 4) return;
-    const el = scrollRef.current;
-    if (!el) return;
-
-    if (revealTimeoutRef.current) clearTimeout(revealTimeoutRef.current);
-    revealTimeoutRef.current = setTimeout(() => {
-      revealTimeoutRef.current = null;
-      el.scrollTo({
-        top: SCROLL_TOP_OFFSET,
-        behavior: "smooth",
-      });
-    }, REVEAL_ROWS_AFTER_FOOTER_MS);
-
-    return () => {
-      if (revealTimeoutRef.current) clearTimeout(revealTimeoutRef.current);
-    };
-  }, [
-    slackActive,
-    prefersReducedMotion,
-    slackBottomDetail,
-    slackSeqPhase,
-  ]);
 
   if (bottomPanel === "slack" && !showSlackSummary) return null;
 
   if (!hasOverview && !hasSlack) return null;
 
   const slackIsActive = bottomPanel === "slack" && !isExiting;
-  const showSecondSlackRow =
-    slackIsActive && (slackSeqPhase >= 2 || prefersReducedMotion);
-  const showSlackFooterText =
-    slackIsActive && (slackSeqPhase >= 3 || prefersReducedMotion);
 
   let slackFirst: SlackSummarySection | undefined;
-  let slackSecond: SlackSummarySection | undefined;
   if (hasSlack && slackSections) {
-    const [a, ...rest] = slackSections;
-    slackFirst = a;
-    slackSecond = rest[0];
+    slackFirst = slackSections[0];
   }
 
   const scrollStyle: CSSProperties =
@@ -355,149 +479,69 @@ export function OnboardingBottomCard({
       ? { overflow: "visible" }
       : { maxHeight: SCROLL_VIEWPORT_MAX_H, overflow: "auto" };
 
-  const slackShellStyle: CSSProperties = {
-    marginTop: slackIsActive ? "20px" : "-12px",
-  };
-
   if (bottomPanel === "overview") {
     if (!hasOverview || !overviewItems) return null;
-    return (
-      <section className="onboarding-card__bottom mt-[-8px] w-full pt-[8px]">
-        <div className="onboarding-bottom-shell relative w-full">
-          <OnboardingInsightsStrip
-            placement="overview"
-            phase={
-              isExiting && exitingStepId === "overview"
-                ? "leaving"
-                : "idle"
-            }
-            prefersReducedMotion={prefersReducedMotion}
-            items={overviewItems}
-            choreo={overviewChoreo}
-          />
-        </div>
-      </section>
-    );
+  } else if (!hasSlack || !slackFirst) {
+    return null;
   }
-
-  if (!hasSlack || !slackFirst) return null;
-
-  const firstCardShowsOverviewStats =
-    slackSeqPhase === 0 &&
-    !prefersReducedMotion &&
-    !!(overviewItems?.length);
-  const row2TextStaggerMs = 120;
 
   return (
     <section
       className={cn(
-        "onboarding-card__bottom mt-[-8px] w-full pt-[8px]",
-        slackIsActive && "onboarding-card__bottom--transparent"
+        "onboarding-card__bottom mt-[-8px] w-full",
+        !prefersReducedMotion &&
+          bottomPanel === "slack" &&
+          "onboarding-card__bottom--slide-slow"
       )}
+      // style={{ padding: "12px 20px 24px 20px" }}
     >
       <div className="onboarding-bottom-shell relative w-full">
-        <div className="w-full">
-          <div
-            ref={scrollRef}
-            className="onboarding-slack-scroll flex w-full flex-col"
-            style={scrollStyle}
-          >
+        
+         
+        
+          {/* <div className="w-full">
             <div
-              className={cn(
-                cardShell,
-                "relative z-0 flex flex-col overflow-hidden"
-              )}
-              style={slackShellStyle}
+              ref={scrollRef}
+              className="onboarding-slack-scroll flex w-full flex-col"
+              style={scrollStyle}
             >
-              <div
-                className={cn(
-                  "flex flex-col gap-2",
-                  slackSeqPhase >= 4 && "onboarding-bottom-slack-stack--shift-down"
-                )}
-              >
-                {/* Shells stay mounted; only inner copy animates between phases. */}
-                <div className="px-5 py-4 bg-white rounded-[8px]">
-                  {firstCardShowsOverviewStats && overviewItems ? (
-                    <div key="slack-phase0-overview">
-                      <OverviewStatsRow
-                        items={overviewItems}
-                        metadataBaseMs={overviewChoreo.metadata}
-                        metadataStaggerMs={overviewChoreo.metadataStagger}
-                        isActive={false}
-                        prefersReducedMotion={prefersReducedMotion}
-                      />
-                    </div>
-                  ) : (
-                    <div
-                      key="slack-phase-first-row"
-                      className={cn(
-                        !prefersReducedMotion &&
-                          (slackSeqPhase >= 1 || !overviewItems?.length) &&
-                          "onboarding-bottom-slack-first-row--position-enter"
-                      )}
-                    >
-                      <SlackRowContent section={slackFirst} />
-                    </div>
-                  )}
+              {slackSections.map((section, index) => (
+                <div
+                  key={index}
+                  className="w-full rounded-[8px] border border-zinc-200/80 bg-white"
+                  style={{ padding: "12px 20px 24px 20px" }}
+                >
+                  <SlackRowContent section={section} />
                 </div>
-
-                {slackSecond ? (
-                  <div className="border border-zinc-200/80 px-5 py-4 bg-white rounded-[8px]">
-                    {showSecondSlackRow ? (
-                      <div
-                        key="slack-second-inner"
-                        className={cn(
-                          !prefersReducedMotion &&
-                            "onboarding-insights-strip__footer-enter"
-                        )}
-                        style={
-                          !prefersReducedMotion
-                            ? staggerMs(row2TextStaggerMs)
-                            : undefined
-                        }
-                      >
-                        <SlackRowContent section={slackSecond} />
-                      </div>
-                    ) : (
-                      <div
-                        className="min-h-[28px]"
-                        aria-hidden
-                      />
-                    )}
-                  </div>
-                ) : null}
-
-                {slackBottomDetail ? (
-                  <div
-                    className="flex min-h-[48px] items-center justify-center border border-zinc-200/80 bg-zinc-100/90 px-5 py-4 text-center text-[13px] leading-relaxed text-[#666] mt-[-15px] pt-[28px] z-[-1]"
-                    style={{ letterSpacing: "-0.13px" }}
-                  >
-                    {showSlackFooterText ? (
-                      <span
-                        key="slack-footer-text"
-                        className={cn(
-                          !prefersReducedMotion &&
-                            "onboarding-insights-strip__footer-enter"
-                        )}
-                        style={
-                          !prefersReducedMotion
-                            ? staggerMs(slackFooterDelayMs)
-                            : undefined
-                        }
-                      >
-                        {slackBottomDetail}
-                      </span>
-                    ) : (
-                      <span className="invisible select-none" aria-hidden>
-                        {slackBottomDetail}
-                      </span>
-                    )}
-                  </div>
-                ) : null}
-              </div>
+              ))}
             </div>
-          </div>
-        </div>
+          </div> */}
+
+            <div className="w-full flex flex-col gap-2 mt-[27px]">
+
+          {  
+            slackSections1.map((section, index) => (
+              console.log(bottomPanel, "bottomPanel"),
+              <div key={index} className={cn(
+               "w-full bg-white rounded-[8px] border border-zinc-200/80 gap-2",
+                (bottomPanel === "slack") ? "opacity-[1]" : "opacity-0"
+              )} style={{ padding: "12px 20px 24px 20px" }}>
+                <SlackRowContent section={section} />
+              </div>
+            ))
+          }
+            </div>
+
+
+          {overviewItems && (
+            <OverviewInsightsCrossfade
+              items={overviewItems}
+              choreo={overviewChoreo}
+              prefersReducedMotion={prefersReducedMotion}
+              detailLine={overviewDetailLine}
+              bottomPanel={bottomPanel}
+            />
+          )}
       </div>
     </section>
   );
