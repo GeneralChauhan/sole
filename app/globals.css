@@ -4,6 +4,35 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /**
+   * Step 2 → 3 (overview → slack), aligned with app/onboarding/choreography.ts slack + .animate-enter
+   * Phase 1: top + overview stats exit together (.animate-exit / stats fadeOut) — 200ms
+   * Phase 2: new top heading (100ms stagger + 600ms enter), then subtext (200ms + 600ms) — last beat ends 800ms
+   * Phase 3: bottom insight detail line (starts after phase 2 + gap)
+   * Phase 4: bottom shell scroll (starts after phase 3 + --onboarding-phase-gap-after-detail-ms)
+   */
+  --onboarding-enter-ms: 600ms;
+  --onboarding-slack-subtitle-stagger-ms: 200ms;
+  /* Gap after last top line finishes entering (200 + 600 = 800ms) before bottom copy animates */
+  --onboarding-phase-gap-after-top-ms: 100ms;
+  /* Detail line uses same duration as .animate-enter; keep in sync for scroll sequencing */
+  --onboarding-bottom-detail-fade-ms: var(--onboarding-enter-ms);
+  --onboarding-bottom-detail-delay: calc(
+    var(--onboarding-slack-subtitle-stagger-ms) +
+      var(--onboarding-enter-ms) +
+      var(--onboarding-phase-gap-after-top-ms)
+  );
+  /* Pause after detail fade fully finishes, then start bottom slide (do not nest calc() inside vars for delay — breaks some engines → delay 0 = overlap). */
+  --onboarding-phase-gap-after-detail-ms: 400ms;
+  /* detailDelay + detailFade + gap — scalar sum only */
+  --onboarding-bottom-scroll-delay: calc(
+    var(--onboarding-slack-subtitle-stagger-ms) +
+      var(--onboarding-enter-ms) +
+      var(--onboarding-phase-gap-after-top-ms) +
+      var(--onboarding-bottom-detail-fade-ms) +
+      var(--onboarding-phase-gap-after-detail-ms)
+  );
 }
 
 @theme inline {
@@ -34,11 +63,9 @@ body {
 @keyframes fadeSlideUp {
   from {
     opacity: 0;
-    transform: translateY(-20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -79,9 +106,10 @@ body {
   pointer-events: none;
 }
 
-/* Applied on the detail node when overview CTA is clicked (pair with longer exit delay in OnboardingCard). */
+/* After slack step top copy (choreography subtitle + enter); keeps phase 3 off phase 2’s timeline. */
 .onboarding-insights-strip__overview-detail-enter {
-  animation: fadeSlideUp 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both;
+  animation: fadeSlideUp var(--onboarding-bottom-detail-fade-ms)
+    cubic-bezier(0.2, 0.8, 0.2, 1) var(--onboarding-bottom-detail-delay) both;
 }
 
 .onboarding-insights-strip__footer-enter {
@@ -176,7 +204,7 @@ body {
 
 @keyframes onboarding-card-bottom-slide-down {
   from {
-    transform: translateY(-110%);
+    /* transform: translateY(67%); */
   }
   to {
     transform: translateY(-5%);
@@ -207,7 +235,8 @@ body {
  * but slower — reads like easing into the final “scroll” position.
  */
 .onboarding-card__bottom--slide-slow {
-  animation: onboarding-card-bottom-slide-down 1.85s cubic-bezier(0.22, 1, 0.32, 1) 0.2s both;
+  animation: onboarding-card-bottom-slide-down 1.85s cubic-bezier(0.22, 1, 0.32, 1)
+    var(--onboarding-bottom-scroll-delay) both;
 }
 
 /* Slack step: no card background so sections sit on page background */
@@ -332,8 +361,8 @@ body {
     animation-delay: 0s;
   }
   .onboarding-insights-strip__overview-detail-enter {
-    animation-duration: 1.6s;
-    animation-delay: 0s;
+    /* animation-duration: 0.01ms;
+    animation-delay: 0s; */
     opacity: 1;
   }
   /* No enter class when reduced motion — snap detail visible on leave */

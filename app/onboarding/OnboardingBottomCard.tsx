@@ -218,7 +218,7 @@ function OverviewInsightsCrossfade({
   };
 
   return (
-    <div className="onboarding-insights-strip onboarding-insights-strip--overview w-full bg-zinc-100\/90 mt-[-15px] relative" 
+    <div className="onboarding-insights-strip min-h-[78px] onboarding-insights-strip--overview w-full bg-zinc-100\/90 mt-[-15px] relative" 
     style={{ padding: "12px 20px 24px 20px", border: "1px solid #EAEAEA", zIndex: -2 }}
     >
       <div
@@ -234,7 +234,7 @@ function OverviewInsightsCrossfade({
           <div
             className={cn(
               "relative z-[1] w-full",
-              isActive &&
+              (bottomPanel === "overview") &&
                 !prefersReducedMotion &&
                 "onboarding-insights-strip__overview-fade-enter"
             )}
@@ -250,8 +250,7 @@ function OverviewInsightsCrossfade({
           <div
             className={cn(
               "onboarding-insights-strip__overview-detail absolute inset-x-0 top-0 bottom-0 z-0 flex items-center justify-center text-center text-[13px] leading-relaxed text-[#666]",
-              bottomPanel === "slack" &&
-                !prefersReducedMotion &&
+              bottomPanel !== "overview" &&
                 "onboarding-insights-strip__overview-detail-enter"
             )}
             style={{ letterSpacing: "-0.13px" }}
@@ -533,7 +532,7 @@ export function OnboardingBottomCard({
             </div>
 
 
-          {overviewItems && (
+          
             <OverviewInsightsCrossfade
               items={overviewItems}
               choreo={overviewChoreo}
@@ -541,7 +540,6 @@ export function OnboardingBottomCard({
               detailLine={overviewDetailLine}
               bottomPanel={bottomPanel}
             />
-          )}
       </div>
     </section>
   );
